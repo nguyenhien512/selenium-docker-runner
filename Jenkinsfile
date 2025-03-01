@@ -13,7 +13,12 @@ pipeline {
         }
         stage('Run Test') {
             steps {
-                bat "SET BROWSER=${params.BROWSER} && docker-compose -f test-suites.yaml up"
+                bat "SET BROWSER=${params.BROWSER} && docker-compose -f test-suites.yaml up --pull=always "
+                script {
+                    if (fileExists('output/flight-reservation/testng-failed.xml') || fileExists('output/vendor-portal/testng-failed.xml')) {
+                        error 'Test failed'
+                    }
+                }
             }
         }
     }
