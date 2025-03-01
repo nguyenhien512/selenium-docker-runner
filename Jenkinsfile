@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        choice choices ['chrome', 'firefox'], description: 'Select browser to run the test', name: 'BROWSER'
+        choice(name: 'BROWSER', choices: ['chrome', 'firefox'], description: 'Select browser to run the test')
     }
 
     stages {
@@ -13,17 +13,17 @@ pipeline {
         }
         stage('Run Test') {
             steps {
-                bat  "SET BROWSER=${params.BROWSER} && docker-compose -f test-suites.yaml up"
+                bat "SET BROWSER=${params.BROWSER} && docker-compose -f test-suites.yaml up"
             }
         }
-        
-        post {
-            always {
-                bat 'docker-compose -f grid.yaml down'
-                bat 'docker-compose -f test-suites.yaml down'
-                archiveArtifacts artifacts: 'output/flight-reservation/emailable-report.html', followSymlinks: true
-                archiveArtifacts artifacts: 'output/vendor-portal/emailable-report.html', followSymlinks: true
-            }
+    }
+
+    post {
+        always {
+            bat 'docker-compose -f grid.yaml down'
+            bat 'docker-compose -f test-suites.yaml down'
+            archiveArtifacts artifacts: 'output/flight-reservation/emailable-report.html', followSymlinks: true
+            archiveArtifacts artifacts: 'output/vendor-portal/emailable-report.html', followSymlinks: true
         }
     }
 }
