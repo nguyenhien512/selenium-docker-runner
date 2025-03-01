@@ -1,15 +1,19 @@
 pipeline {
     agent any
 
+    parameters {
+        choice choices ['chrome', 'firefox'], description: 'Select browser to run the test', name: 'BROWSER'
+    }
+
     stages {
         stage('Start Grid') {
             steps {
-                bat 'docker-compose -f grid.yaml up -d'
+                bat "docker-compose -f grid.yaml --scale ${params.BROWSER}=2 up -d"
             }
         }
         stage('Run Test') {
             steps {
-                bat 'docker-compose -f test-suites.yaml up --exit-code-from test'
+                bat  "SET BROWSER=${params.BROWSER} && docker-compose -f test-suites.yaml up"
             }
         }
         
